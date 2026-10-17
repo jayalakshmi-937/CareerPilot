@@ -6,7 +6,8 @@
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector%20Store-blue.svg)](https://www.trychroma.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-SQLAlchemy%20Persistence-003B57.svg?logo=sqlite)](https://www.sqlite.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-Interactive%20UI-FF4B4B.svg?logo=streamlit)](https://streamlit.io/)
-[![Tests](https://img.shields.io/badge/pytest-95%20Passed-brightgreen.svg)](https://docs.pytest.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose%20Ready-2496ED.svg?logo=docker)](https://www.docker.com/)
+[![Tests](https://img.shields.io/badge/pytest-120%20Passed-brightgreen.svg)](https://docs.pytest.org/)
 
 > **CareerPilot** is a genuinely agentic AI system designed for final-year college students preparing for technical placement drives. Unlike traditional chatbots or superficial RAG wrappers that simply return static answers, CareerPilot maintains a continuous **adaptive feedback loop**:
 >
@@ -179,19 +180,49 @@ Open your browser to: **[http://localhost:8501](http://localhost:8501)**
 
 ---
 
-## 🧪 Running Automated Tests
+## 🐳 Docker Deployment (Recommended)
 
-CareerPilot includes an exhaustive test suite covering all layers:
+Launch both the **FastAPI Backend** and the **Streamlit Frontend** with persistent storage in one command:
 
 ```bash
-# Run all tests (95 tests)
+# 1. Set your Gemini API key in .env or your terminal
+export GEMINI_API_KEY="your-gemini-api-key-here"
+
+# 2. Build and launch services in detached mode
+docker compose up --build -d
+
+# 3. Check container health status
+docker compose ps
+```
+
+- **Candidate Web Dashboard:** [http://localhost:8501](http://localhost:8501)
+- **API Swagger Documentation:** [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Backend Health Check:** [http://localhost:8000/health](http://localhost:8000/health)
+
+To view streaming logs or shut down containers:
+```bash
+docker compose logs -f              # View real-time logs
+docker compose down                 # Stop services and preserve storage
+```
+For complete production options, volume mounting, and backup commands, see [`DOCKER_GUIDE.md`](./DOCKER_GUIDE.md).
+
+---
+
+## 🧪 Running Automated Tests
+
+CareerPilot includes an exhaustive test suite covering all phases (100% passing across 120 tests):
+
+```bash
+# Run all unit and integration tests (120 tests)
 pytest -v -m "not live"
 
-# Run tests by module
-pytest tests/test_phase5.py -v   # Agentic Learning Loop
-pytest tests/test_phase6.py -v   # SQLite Persistent Memory
-pytest tests/test_phase7.py -v   # Placement MCQs, Coding & Readiness
-pytest tests/test_phase8.py -v   # Mock Interview Agent & Scorecard
+# Run tests by module / phase
+pytest tests/test_phase5.py -v              # Agentic Learning Loop
+pytest tests/test_phase6.py -v              # SQLite Persistent Memory
+pytest tests/test_phase7.py -v              # Placement MCQs, Coding & Readiness
+pytest tests/test_phase8.py -v              # Mock Interview Agent & Scorecard
+pytest tests/test_phase9_comprehensive.py -v # Full API & State Boundary Suite
+pytest tests/test_phase10.py -v             # Docker & Compose Configurations
 ```
 
 ---
@@ -253,9 +284,17 @@ CareerPilot/
 ├── data/
 │   └── documents/               # Curated placement study guides
 │
-├── tests/                       # Complete Test Harness (Phases 1-8)
+├── tests/                       # Complete Test Harness (Phases 1-10)
+│   ├── conftest.py              # Shared fixtures & DB in-memory engine
+│   ├── sample_data.py           # Test student profiles & answer sets
 │   ├── test_phase1.py to test_phase8.py
+│   ├── test_phase9_comprehensive.py # End-to-end integration suite
+│   └── test_phase10.py          # Docker & deployment validation
 │
+├── Dockerfile                   # Multi-service production container image
+├── docker-compose.yml           # Orchestration for backend & frontend
+├── .dockerignore                # Clean build exclusions
+├── DOCKER_GUIDE.md              # Container deployment guide
 ├── .env.example                 # Secrets template
 ├── .gitignore                   # Safe exclusions (.env, *.db, chroma_db/)
 ├── pytest.ini                   # Pytest test markers & paths
