@@ -1,0 +1,17 @@
+FREQUENTLY ASKED QUESTIONS (FAQs) ON PLACEMENT ELIGIBILITY
+Category: Placement Cell Helpdesk
+
+Q1: What happens if I have an active backlog? Can I still register?
+A1: No. The general campus placement rules require students to have zero active backlogs at the time of registering for any placement drive. If you have an active backlog, you must clear it in the supplementary examinations before registering.
+
+Q2: Can students from Circuit Branches (ECE, EEE, EIE) apply for core IT/software engineering roles?
+A2: Yes, most software and product-based companies allow students from Computer Science (CSE), Information Technology (IT), Electronics and Communication (ECE), Electrical and Electronics (EEE), and Electronics and Instrumentation (EIE) to apply. However, mechanical, civil, and chemical engineering students are restricted by certain software firms unless explicitly specified.
+
+Q3: What is the "Dream Offer" threshold, and how do I apply?
+A3: If your first placement offer has a package of less than 8.0 LPA, you can apply for a "Dream Offer" drive. The dream company must offer a package of 12.0 LPA or higher, or at least 1.5 times your current package. You must apply for clearance through the placement coordinator before submitting your registration.
+
+Q4: If I register for a drive and skip the online assessment, is there any penalty?
+A4: Yes. Registering for a drive and failing to appear for any assessment or interview without a valid, pre-approved reason (such as a medical emergency verified by the university doctor) is considered a breach of code of conduct. It results in a blacklisting from the placement portal for the next three consecutive campus drives.
+
+Q5: Are PG students (M.Tech, MCA) eligible for the same roles as B.Tech students?
+A5: Many technical companies open their software engineering roles to MCA and M.Tech (CSE/ECE) students alongside B.Tech. However, the age limit and gap in education rules (if any) specified by service companies (like TCS/Infosys) must be strictly adhered to.

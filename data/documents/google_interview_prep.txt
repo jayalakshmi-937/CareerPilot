@@ -1,0 +1,20 @@
+GOOGLE SOFTWARE ENGINEER INTERVIEW ROADMAP
+Company: Google LLC
+Roles: Software Engineer (L3/L4 - University Graduate)
+
+Google's selection process for university graduates comprises resume shortlisting, online coding assessments, and multiple rounds of technical interviews.
+
+1. SCREENING & ROUNDS
+- Online Coding Challenge (Google Online Challenge - GOC): 2 algorithmic coding questions (60 minutes).
+- Technical Phone Screen (1 round, 45 minutes): Coding and algorithms on a shared doc.
+- Onsite Rounds (3 to 4 rounds, 45 minutes each):
+  - 3 Coding & Algorithm Rounds: Deep focus on algorithms, complexity analysis, data structures, and edge cases.
+  - 1 Googliness & Leadership Round: Behavioral assessment focusing on teamwork, adaptability, dealing with ambiguity, and ethical decision-making.
+
+2. CORE TOPICS TO PREPARE
+- Data Structures: Graphs (DFS, BFS, Dijkstra, MST, Topological Sort), Trees (Binary Trees, BST, Trie, Segment Trees), Hash Tables, Stacks, Queues, Heaps.
+- Algorithms: Recursion, Dynamic Programming (Memoization and Tabulation), Divide and Conquer, Greedy Algorithms, Binary Search, Sliding Window, Two Pointers.
+- Complexity: Big-O analysis for time and space is mandatory for every solution discussed. Students must explain optimal vs. suboptimal trade-offs.
+
+3. KEY GOOGLINESS BEHAVIORS
+- intellectual humility, bias for action, supporting team members, navigating ambiguous situations, and respecting diversity.

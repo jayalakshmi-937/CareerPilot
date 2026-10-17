@@ -1,0 +1,24 @@
+CAMPUS PLACEMENT MOCK INTERVIEW GUIDE
+Category: Placement Training Material
+
+This guide outlines the standard structure of campus placement interviews and provides tips for technical and behavioral preparation.
+
+1. THE TECHNICAL INTERVIEW
+Focuses on evaluating your problem-solving skills, academic fundamentals, and project work.
+- Project Walkthrough: Always follow the CAR framework (Context, Action, Result) when explaining your projects. Be ready to explain your database design, API design, tech stack choices, and how you solved challenges.
+- Core CS Subjects: Expect questions from:
+  - Database Management Systems (DBMS): Normalization, SQL Joins, Indexing, Transactions (ACID properties).
+  - Operating Systems (OS): Process vs. Thread, CPU Scheduling, Deadlocks, Paging, Virtual Memory.
+  - Computer Networks (CN): TCP/IP model vs. OSI, HTTP/HTTPS, DNS, routing protocols, sockets.
+
+2. THE BEHAVIORAL & HR INTERVIEW
+Focuses on company culture fit, communication skills, and leadership potential.
+- Use the STAR Method to answer behavioral questions:
+  - Situation: Describe the situation or challenge you faced.
+  - Task: What was the goal or task you needed to accomplish?
+  - Action: Explain the specific actions you took to address the challenge.
+  - Result: Share the outcomes, achievements, and what you learned.
+- Common Questions:
+  - "Tell me about yourself." (Keep it to 2 minutes, focus on projects, achievements, and goals).
+  - "Describe a conflict in your team project and how you resolved it."
+  - "Why do you want to join our company?"

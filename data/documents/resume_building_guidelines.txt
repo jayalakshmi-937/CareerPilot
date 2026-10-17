@@ -1,0 +1,22 @@
+RESUME BUILDING STANDARDS & GUIDELINES
+Category: Career Development Center
+
+A student resume for campus placements must be concise, accurate, and professional. It must fit on a single A4 page.
+
+1. STANDARD STRUCTURE & SECTIONS (Top to Bottom)
+- Contact Information: Full Name, Professional Email, Phone Number, LinkedIn Profile, GitHub Link. Do not include photo, address, or date of birth.
+- Education: Table format listing University/Degree, Year of Graduation, CGPA/Percentage. Also list Class XII and Class X school, year, and percentage.
+- Technical Skills: Grouped by category:
+  - Programming Languages: e.g., Python, C++, Java, JavaScript.
+  - Databases & Cloud: e.g., PostgreSQL, MongoDB, AWS, Firebase.
+  - Tools & Frameworks: e.g., Git, Streamlit, React, Node.js.
+- Academic & Personal Projects: List 2-3 projects. Include title, technologies used, and 2-3 bullet points describing what you built, how you built it, and the impact (quantified if possible).
+- Internships & Experience (if any): Company, role, duration, and key contributions.
+- Achievements & Extracurriculars: Competitive programming ratings, scholarship awards, hackathon wins, student club leadership positions.
+
+2. CRITICAL DOS AND DON'Ts
+- Do use strong action verbs (e.g., "Developed", "Optimized", "Designed", "Led", "Integrated").
+- Do quantify your achievements (e.g., "Optimized database queries, reducing API response times by 35%").
+- Don't exceed one page.
+- Don't include spelling or grammatical errors.
+- Don't list outdated soft skills like "Hardworking" or "Punctual" without supporting context.

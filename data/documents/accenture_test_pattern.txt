@@ -1,0 +1,25 @@
+ACCENTURE ASSESSMENT PROCESS & TEST SECTIONS
+Company: Accenture
+Roles: Associate Software Engineer (ASE), Advanced Associate Software Engineer (AASE)
+
+Accenture follows a sequential elimination-based assessment process:
+
+STAGE 1: COGNITIVE AND TECHNICAL ASSESSMENT (90 minutes)
+This stage is NOT negatively marked and consists of 90 questions.
+- Cognitive Section (50 questions): Critical reasoning, English ability, abstract reasoning.
+- Technical Section (40 questions): Common applications (MS Office), pseudocode debugging, networking, security, and cloud fundamentals.
+- Note: This is an elimination round; candidates must meet sectional and overall cut-offs.
+
+STAGE 2: CODING ASSESSMENT (45 minutes)
+- Immediate unlock upon passing Stage 1.
+- Candidates must solve 2 coding questions.
+- Languages: C, C++, Java, Python.
+- Topics: Array operations, string manipulations, matrix traversal, basic math algorithms (GCD, LCM, Prime sequences).
+- Elimination Criteria: Attempting at least 1 coding question and passing a majority of test cases is typically required to proceed to the next stage.
+
+STAGE 3: COMMUNICATION ASSESSMENT (20 minutes)
+- Non-elimination round but scores are factored in final selection.
+- Automated voice assessment testing: Sentence reading, repetition, vocabulary usage, and short story retelling.
+
+STAGE 4: TECHNICAL AND HR INTERVIEW
+- 20-30 minutes conversation with a panel focusing on project execution, teamwork, conflict resolution, and technical fundamentals in database systems and software engineering.

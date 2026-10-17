@@ -1,0 +1,23 @@
+INFOSYS PLACEMENT SYLLABUS & SELECTION PROCESS
+Company: Infosys Limited
+Roles: System Engineer (SE), Specialist Programmer (SP), Digital Specialist Engineer (DSE)
+
+1. RECRUITMENT ROUNDS
+- Round 1: Online Assessment (Cognitive & Technical Test)
+- Round 2: Technical Interview (Coding, core CS fundamentals, resume projects)
+- Round 3: HR / Behavioral Interview
+
+2. ONLINE ASSESSMENT PATTERN FOR SYSTEM ENGINEER (SE)
+The online exam lasts for approximately 100 minutes and consists of five core sections:
+- Reasoning Ability (15 questions, 25 minutes): Analytical reasoning, data interpretation, logic puzzles.
+- Mathematical Ability (10 questions, 35 minutes): Permutation & combination, probability, series, analytical geometry, algebra.
+- Verbal Ability (20 questions, 20 minutes): Cryptarithmetic, sentence completion, reading comprehension.
+- Pseudo-code (5 questions, 10 minutes): Direct questions asking to trace output of code snippets in C/C++ style, covering logic, loops, pointers, and memory layout.
+- Puzzle Solving (4 questions, 10 minutes): Grid-based puzzles, logical deduction.
+
+3. SPECIALIST PROGRAMMER (SP) & DSE ROUNDS
+For SP and DSE roles, the online assessment is purely coding-focused:
+- Duration: 180 minutes.
+- Structure: 3 programming problems of varying difficulty (Easy-Medium, Medium-Hard, Hard).
+- Language support: Java, Python, C++, C.
+- Topics: Dynamic Programming, Graph Algorithms, Greedy Strategy, Segment Trees, and String Algorithms.

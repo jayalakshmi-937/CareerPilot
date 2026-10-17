@@ -1,0 +1,21 @@
+TCS NQT TEST PATTERN & SYLLABUS
+Company: Tata Consultancy Services (TCS)
+Drive Type: National Qualifier Test (NQT) - Ninja and Digital Roles
+
+1. EXAM SECTIONS & STRUCTURE
+The TCS NQT is divided into two primary parts: Foundation and Advanced.
+
+Part A: Foundation Section (Total Time: 75 minutes)
+- Verbal Ability (24 questions): Focuses on English vocabulary, grammar, reading comprehension, error correction, and sentence completion.
+- Reasoning Ability (30 questions): Logic puzzles, data sufficiency, syllogisms, visual reasoning, and spatial arrangement.
+- Numerical Ability (26 questions): Arithmetic, numbers, geometry, percentages, probability, data interpretation, and time/speed/distance.
+
+Part B: Advanced Section (Total Time: 90 minutes) - Required for Digital / Prime Roles
+- Advanced Quantitative Ability (15 questions, 30 minutes)
+- Advanced Reasoning Ability (10 questions, 20 minutes)
+- Advanced Coding (2 questions, 40 minutes): Candidates must write working code in C, C++, Java, Python, or Perl to solve algorithmic problems (data structures, dynamic programming, array/string manipulation).
+
+2. ELIGIBILITY CRITERIA FOR TCS NQT
+- CGPA/Percentage: Minimum 60% or 6.0 CGPA throughout 10th, 12th, Diploma (if applicable), and Graduation.
+- Academic Gap: Maximum permissible academic gap is 2 years.
+- Backlogs: Max 1 active backlog is permitted at the time of appearing for the NQT test, but it must be cleared before joining.

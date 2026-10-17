@@ -1,0 +1,19 @@
+COGNIZANT CAMPUS ELIGIBILITY & ROLES
+Company: Cognizant Technology Solutions
+Roles: GenC, GenC Elevate, GenC Next
+
+Cognizant recruits for multiple profiles through their campus hiring programs.
+
+1. ROLE OVERVIEWS & COMPENSATION
+- GenC (CTC: 4.0 LPA): Entry-level associate software engineer profile. Focuses on foundational technical training and support tasks.
+- GenC Elevate (CTC: 4.5 LPA): Developer-oriented profile. Candidates are assessed on core programming languages (Java/Python) and database fundamentals.
+- GenC Next (CTC: 6.75 LPA): Premium product/development profile. Candidates undergo complex coding assessments in cloud-native applications, web technologies, or data science.
+
+2. ELIGIBILITY CRITERIA
+- CGPA Thresholds: 
+  - For GenC: Minimum 6.0 CGPA at the time of recruitment, with no active backlogs.
+  - For GenC Elevate: Minimum 6.5 CGPA, no active backlogs.
+  - For GenC Next: Minimum 7.0 CGPA, no active backlogs.
+- Percentage Criteria: Minimum 60% in 10th and 12th standards.
+- Branches Eligible: CSE, IT, ECE, EEE, EIE, MCA, M.Sc (Computer Science / IT).
+- Academic Gap: A maximum of 1 year of gap in education is allowed from the start of school to graduation.

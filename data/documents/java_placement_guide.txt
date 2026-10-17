@@ -1,0 +1,94 @@
+# CareerPilot Comprehensive Java Placement Preparation Guide
+
+## 1. Core Object-Oriented Programming (OOP) Principles
+Java is an object-oriented language based on 4 primary pillars:
+
+### Abstraction
+- Hiding implementation details and exposing only the essential features of an object.
+- Achieved using abstract classes (`abstract` keyword) and interfaces (`interface` keyword).
+- Interfaces support multiple inheritance in Java; abstract classes do not.
+- From Java 8 onwards, interfaces can contain `default` and `static` methods. From Java 9, they can also contain `private` helper methods.
+
+### Encapsulation
+- Binding data (fields) and code (methods) together into a single unit (class).
+- Achieved by declaring variables `private` and providing `public` getters and setters.
+- Promotes data hiding, modularity, and maintainability.
+
+### Inheritance
+- Mechanism where one class acquires the properties and behaviors of a parent class (`extends` keyword).
+- Types supported in Java classes: Single, Multilevel, Hierarchical.
+- Multiple inheritance is NOT supported with classes to prevent the "Diamond Problem" (ambiguity), but IS supported via interfaces (`implements A, B`).
+- The `super` keyword is used to refer to immediate parent class instance variables, methods, and constructors.
+
+### Polymorphism
+- The ability of a message or method to be processed in more than one form.
+- Compile-time (Static) Polymorphism: Method Overloading (same method name, different argument list/types, resolved at compile time). Return type alone cannot differentiate overloaded methods.
+- Runtime (Dynamic) Polymorphism: Method Overriding (subclass provides specific implementation of a method defined in its superclass, resolved via Dynamic Method Dispatch using the runtime type of the object).
+
+---
+
+## 2. Java Memory Management & Garbage Collection (JVM)
+The Java Virtual Machine (JVM) divides memory into:
+- Heap Memory: Stores all objects, instance variables, and arrays. Shared across all threads. Divided into Young Generation (Eden, Survivor S0/S1) and Old (Tenured) Generation, plus Metaspace (class metadata since Java 8).
+- Stack Memory: Stores local variables, primitive data types, and method call frames. Allocated per thread. Fast allocation/deallocation; follows LIFO order.
+- Garbage Collection (GC): Automated process to reclaim memory occupied by unreachable objects.
+  - Generational Hypothesis: Most objects die young. Minor GC collects young gen; Major/Full GC collects old gen.
+  - Algorithms: Serial GC, Parallel GC, G1 GC (Garbage-First, default since Java 9), ZGC (ultra-low latency).
+  - An object becomes eligible for GC when it has no live references (e.g., set reference to `null`, reassign reference, or object created inside a method completes execution).
+
+---
+
+## 3. Java Collections Framework
+The Collections framework (`java.util`) provides standard data structures:
+
+### List Interface (Ordered, allows duplicates, index-based access)
+- `ArrayList`: Resizable array. Fast random access $O(1)$. Slow insertion/deletion in the middle $O(N)$ due to shifting. Grows by 50% when full.
+- `LinkedList`: Doubly linked list. Fast insertion/deletion $O(1)$ if pointer is available. Slow random access $O(N)$.
+- `Vector`: Synchronized (thread-safe) resizable array. Obsolete; prefer `CopyOnWriteArrayList` in concurrent environments.
+
+### Set Interface (Unordered, no duplicates allowed)
+- `HashSet`: Backed by a `HashMap`. $O(1)$ average time for add/contains/remove. No ordering guaranteed.
+- `LinkedHashSet`: Maintains insertion order using a doubly linked list running through entries.
+- `TreeSet`: Backed by a Red-Black Tree (`NavigableMap`). Sorted order (natural or via `Comparator`). $O(\log N)$ operations.
+
+### Map Interface (Key-Value pairs, unique keys)
+- `HashMap`: Array of buckets (Node<K,V>). Default capacity = 16, default load factor = 0.75.
+  - Bucket collision resolution: LinkedList converted to Balanced Red-Black Tree when bucket size reaches 8 (`TREEIFY_THRESHOLD`) and capacity >= 64.
+  - Crucial rule: If you override `equals()`, you MUST override `hashCode()` to maintain the contract that equal objects must have identical hash codes.
+- `LinkedHashMap`: Maintains insertion order or access order (useful for LRU Cache implementations).
+- `TreeMap`: Red-Black tree based. Sorted by key. $O(\log N)$ operations.
+- `ConcurrentHashMap`: Thread-safe without locking the whole map. Uses CAS (Compare-And-Swap) operations and bucket-level locks (`synchronized` on individual bin head nodes).
+
+---
+
+## 4. Multithreading & Concurrency
+- Thread Creation:
+  1. Extend `Thread` class and override `run()`.
+  2. Implement `Runnable` interface (recommended; allows extending another class).
+  3. Implement `Callable<V>` interface (returns result, throws checked exceptions; used with `ExecutorService` and `Future`).
+- Synchronization:
+  - `synchronized` keyword: Acquires the intrinsic lock (monitor) of the object or class.
+  - `volatile` keyword: Guarantees visibility across threads by reading/writing directly to main memory, but does NOT guarantee atomicity (e.g., `count++` is not atomic).
+  - `java.util.concurrent.atomic`: Lock-free thread-safe primitives (`AtomicInteger`, `AtomicBoolean`, `AtomicReference`) using CPU-level CAS instructions.
+  - `ReentrantLock`: Explicit lock offering fairness policy, interruptible lock acquisition, and timed lock attempts (`tryLock()`).
+  - ThreadPools & `ExecutorService`: Reuses existing threads (`Executors.newFixedThreadPool`, `Executors.newCachedThreadPool`). Avoids overhead of thread creation.
+
+---
+
+## 5. Exception Handling & Best Practices
+- Hierarchy: `Throwable` is the root class. Subclasses: `Error` (serious system issues like `OutOfMemoryError`, `StackOverflowError`; should not be caught) and `Exception`.
+- Checked Exceptions: Subclasses of `Exception` (excluding `RuntimeException`). Checked at compile time (e.g., `IOException`, `SQLException`). Must be declared with `throws` or handled with `try-catch`.
+- Unchecked Exceptions: Subclasses of `RuntimeException` (e.g., `NullPointerException`, `ArrayIndexOutOfBoundsException`, `IllegalArgumentException`). Occur at runtime due to programming bugs.
+- `try-with-resources`: Introduced in Java 7 for automatic closing of any resource implementing `AutoCloseable` (e.g., file streams, database connections). Prevents resource leaks without requiring boilerplate `finally` blocks.
+
+---
+
+## 6. Modern Java & Spring Boot Essentials for Placements
+- Java 8 Features:
+  - Lambda Expressions & Functional Interfaces (`@FunctionalInterface`, `Predicate`, `Function`, `Consumer`, `Supplier`).
+  - Stream API (`filter()`, `map()`, `flatMap()`, `reduce()`, `collect()`).
+  - `Optional<T>`: Container to prevent `NullPointerException`.
+- Spring Framework Core:
+  - Inversion of Control (IoC) & Dependency Injection (DI): Spring IoC Container creates and injects dependencies via `@Autowired`, constructor injection (preferred), or setter injection.
+  - Annotations: `@Component`, `@Service`, `@Repository`, `@Controller`, `@RestController`.
+  - Spring Boot Advantages: Auto-configuration, embedded Tomcat/Jetty server, production-ready metrics with Actuator, opinionated starters (`spring-boot-starter-web`, `spring-boot-starter-data-jpa`).
