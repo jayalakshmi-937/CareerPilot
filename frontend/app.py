@@ -429,6 +429,21 @@ with st.sidebar:
             icon="⚠️",
         )
 
+    # API Key Configuration
+    active_key = os.getenv("GEMINI_API_KEY", "") or os.getenv("GOOGLE_API_KEY", "")
+    with st.expander("🔑 Gemini API Key", expanded=not bool(active_key)):
+        user_key = st.text_input(
+            "API Key",
+            value=active_key,
+            type="password",
+            placeholder="AIzaSy...",
+            help="Set via Streamlit Secrets or paste your key here directly.",
+        )
+        if user_key and user_key != active_key:
+            os.environ["GEMINI_API_KEY"] = user_key.strip()
+            os.environ["GOOGLE_API_KEY"] = user_key.strip()
+            st.success("API Key updated!", icon="✅")
+
     # ── Preparation Setup Section ─────────────────────────────────────────────
     st.markdown("### 🎯 Preparation Setup")
 
@@ -558,7 +573,14 @@ if start_btn:
                 st.session_state["completed_days"] = set()
                 st.toast("🎉 Personalized preparation plan ready!", icon="🚀")
             else:
-                st.error(f"❌ Failed to generate plan: {error_msg}")
+                if "API key required" in str(error_msg):
+                    st.error(
+                        "🔑 **Gemini API Key Required**\n\n"
+                        "Please paste your Gemini API key in the left sidebar under **'🔑 Gemini API Key'**, "
+                        "or add `GEMINI_API_KEY = \"your-key\"` in your Streamlit Cloud **App Settings ➔ Secrets**."
+                    )
+                else:
+                    st.error(f"❌ Failed to generate plan: {error_msg}")
 
 
 # ── Main Content Area ─────────────────────────────────────────────────────────
