@@ -7,7 +7,7 @@
 [![SQLite](https://img.shields.io/badge/SQLite-SQLAlchemy%20Persistence-003B57.svg?logo=sqlite)](https://www.sqlite.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-Interactive%20UI-FF4B4B.svg?logo=streamlit)](https://streamlit.io/)
 [![Docker](https://img.shields.io/badge/Docker-Compose%20Ready-2496ED.svg?logo=docker)](https://www.docker.com/)
-[![Tests](https://img.shields.io/badge/pytest-120%20Passed-brightgreen.svg)](https://docs.pytest.org/)
+[![Tests](https://img.shields.io/badge/pytest-126%20Passed-brightgreen.svg)](https://docs.pytest.org/)
 
 > **CareerPilot** is a genuinely agentic AI system designed for final-year college students preparing for technical placement drives. Unlike traditional chatbots or superficial RAG wrappers that simply return static answers, CareerPilot maintains a continuous **adaptive feedback loop**:
 >
@@ -210,10 +210,10 @@ For complete production options, volume mounting, and backup commands, see [`DOC
 
 ## 🧪 Running Automated Tests
 
-CareerPilot includes an exhaustive test suite covering all phases (100% passing across 120 tests):
+CareerPilot includes an exhaustive test suite covering all phases (100% passing across 126 tests):
 
 ```bash
-# Run all unit and integration tests (120 tests)
+# Run all unit and integration tests (126 tests)
 pytest -v -m "not live"
 
 # Run tests by module / phase

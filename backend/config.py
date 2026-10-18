@@ -15,6 +15,20 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # ── Project root ──────────────────────────────────────────────────────────────
 ROOT_DIR: Path = Path(__file__).resolve().parent.parent
 
+# ── Sync Streamlit Secrets (for Streamlit Cloud deployments) ──────────────────
+try:
+    import streamlit as _st
+    if hasattr(_st, "secrets"):
+        for _k, _v in _st.secrets.items():
+            if isinstance(_v, dict):
+                for _sk, _sv in _v.items():
+                    if _sk not in os.environ:
+                        os.environ[_sk] = str(_sv)
+            elif _k not in os.environ:
+                os.environ[_k] = str(_v)
+except Exception:
+    pass
+
 
 class Settings(BaseSettings):
     """All application settings, loaded from environment variables / .env file."""

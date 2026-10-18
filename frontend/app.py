@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import os
 import sys
+import threading
 import time
 from pathlib import Path
 from typing import Any, Optional
@@ -26,6 +27,19 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+# ── Sync Streamlit Secrets into os.environ (Cloud Deployment) ─────────────────
+try:
+    if hasattr(st, "secrets"):
+        for key, val in st.secrets.items():
+            if isinstance(val, dict):
+                for sub_k, sub_v in val.items():
+                    if sub_k not in os.environ:
+                        os.environ[sub_k] = str(sub_v)
+            elif key not in os.environ:
+                os.environ[key] = str(val)
+except Exception:
+    pass
+
 # ── Page Configuration ────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="CareerPilot — AI Placement Preparation",
@@ -36,6 +50,55 @@ st.set_page_config(
 
 # ── Backend Configuration ─────────────────────────────────────────────────────
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000").rstrip("/")
+
+
+@st.cache_resource(show_spinner=False)
+def start_in_process_backend() -> bool:
+    """Start FastAPI backend in a background daemon thread for standalone cloud deployments (e.g. Streamlit Cloud)."""
+    # 1. Check if backend is already alive (e.g. standard local uvicorn or docker)
+    try:
+        resp = requests.get(f"{BACKEND_URL}/health", timeout=1.5)
+        if resp.status_code == 200:
+            return True
+    except Exception:
+        pass
+
+    # 2. Only auto-start if BACKEND_URL targets localhost or 127.0.0.1
+    if "localhost" not in BACKEND_URL and "127.0.0.1" not in BACKEND_URL:
+        return False
+
+    try:
+        import uvicorn
+        from backend.main import app as fastapi_app
+
+        server_config = uvicorn.Config(
+            fastapi_app,
+            host="127.0.0.1",
+            port=8000,
+            log_level="warning",
+            access_log=False,
+        )
+        server = uvicorn.Server(server_config)
+        thread = threading.Thread(target=server.run, daemon=True)
+        thread.start()
+
+        # Poll until backend responds or timeout after 8 seconds
+        for _ in range(16):
+            time.sleep(0.5)
+            try:
+                resp = requests.get(f"{BACKEND_URL}/health", timeout=1)
+                if resp.status_code == 200:
+                    return True
+            except Exception:
+                pass
+        return True
+    except Exception as exc:
+        print(f"[CareerPilot] Could not auto-start in-process backend: {exc}")
+        return False
+
+
+# Auto-start backend in standalone cloud container
+start_in_process_backend()
 
 # ── Session State Initialisation ──────────────────────────────────────────────
 if "agent_data" not in st.session_state:
@@ -65,9 +128,20 @@ def check_backend_health() -> tuple[bool, Optional[dict[str, Any]]]:
         resp = requests.get(f"{BACKEND_URL}/health", timeout=3)
         if resp.status_code == 200:
             return True, resp.json()
-        return False, None
     except Exception:
-        return False, None
+        pass
+
+    # Retry starting backend if running locally and currently offline
+    if "localhost" in BACKEND_URL or "127.0.0.1" in BACKEND_URL:
+        start_in_process_backend()
+        try:
+            resp = requests.get(f"{BACKEND_URL}/health", timeout=3)
+            if resp.status_code == 200:
+                return True, resp.json()
+        except Exception:
+            pass
+
+    return False, None
 
 
 def get_documents_status() -> dict[str, Any]:

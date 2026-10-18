@@ -51,7 +51,9 @@ chromadb/
 logs/
 
 # ── Docker ──────────────────────────────────────────────────────────────────────
-.dockerignore
+# .dockerignore should be tracked in repository
+
+install_log.txt
 
 # ── Misc ────────────────────────────────────────────────────────────────────────
 .mypy_cache/
