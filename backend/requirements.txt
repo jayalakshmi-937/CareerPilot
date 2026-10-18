@@ -2,10 +2,10 @@
 # Backend-specific pins (a subset of root requirements.txt).
 # Install the root requirements.txt for the full stack.
 
-fastapi==0.115.5
-uvicorn[standard]==0.32.1
-python-dotenv==1.0.1
-pydantic==2.10.1
-pydantic-settings==2.6.1
-loguru==0.7.2
-python-multipart==0.0.12
+fastapi==0.143.3
+uvicorn[standard]==0.54.0
+python-dotenv==1.2.4
+pydantic==2.14.1
+pydantic-settings==2.16.0
+loguru==0.7.3
+python-multipart==0.0.32
