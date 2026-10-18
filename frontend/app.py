@@ -172,13 +172,21 @@ def call_agent_api(
     goal: str,
     technology: str,
     days: int,
+    api_key: Optional[str] = None,
 ) -> tuple[bool, Optional[dict[str, Any]], Optional[str]]:
     """Invoke the CareerPilot backend agent endpoint."""
+    effective_key = (
+        api_key
+        or st.session_state.get("gemini_api_key")
+        or os.getenv("GEMINI_API_KEY", "").strip()
+        or os.getenv("GOOGLE_API_KEY", "").strip()
+    )
     payload = {
         "goal": goal.strip(),
         "student_name": name.strip() or "Student",
         "target_technology": technology,
         "available_days": days,
+        "api_key": effective_key,
     }
     try:
         resp = requests.post(
@@ -212,8 +220,15 @@ def call_agent_api(
 def call_evaluate_api(
     answer: str,
     agent_data: dict[str, Any],
+    api_key: Optional[str] = None,
 ) -> tuple[bool, Optional[dict[str, Any]], Optional[str]]:
     """Submit a student answer to the agentic evaluation and adaptation endpoint."""
+    effective_key = (
+        api_key
+        or st.session_state.get("gemini_api_key")
+        or os.getenv("GEMINI_API_KEY", "").strip()
+        or os.getenv("GOOGLE_API_KEY", "").strip()
+    )
     payload = {
         "student_answer": answer.strip(),
         "current_question": agent_data.get("current_question"),
@@ -225,6 +240,7 @@ def call_evaluate_api(
         "topic_scores": agent_data.get("topic_scores") or {},
         "progress": agent_data.get("progress") or {},
         "session_id": agent_data.get("session_id"),
+        "api_key": effective_key,
     }
     try:
         resp = requests.post(
@@ -430,19 +446,24 @@ with st.sidebar:
         )
 
     # API Key Configuration
-    active_key = os.getenv("GEMINI_API_KEY", "") or os.getenv("GOOGLE_API_KEY", "")
+    active_key = (
+        st.session_state.get("gemini_api_key")
+        or os.getenv("GEMINI_API_KEY", "")
+        or os.getenv("GOOGLE_API_KEY", "")
+    )
     with st.expander("🔑 Gemini API Key", expanded=not bool(active_key)):
         user_key = st.text_input(
             "API Key",
             value=active_key,
             type="password",
-            placeholder="AIzaSy...",
+            placeholder="AQ... or AIzaSy...",
             help="Set via Streamlit Secrets or paste your key here directly.",
         )
-        if user_key and user_key != active_key:
-            os.environ["GEMINI_API_KEY"] = user_key.strip()
-            os.environ["GOOGLE_API_KEY"] = user_key.strip()
-            st.success("API Key updated!", icon="✅")
+        if user_key and user_key.strip():
+            cleaned_key = user_key.strip()
+            os.environ["GEMINI_API_KEY"] = cleaned_key
+            os.environ["GOOGLE_API_KEY"] = cleaned_key
+            st.session_state["gemini_api_key"] = cleaned_key
 
     # ── Preparation Setup Section ─────────────────────────────────────────────
     st.markdown("### 🎯 Preparation Setup")

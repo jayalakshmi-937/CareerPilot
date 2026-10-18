@@ -78,6 +78,25 @@ class Settings(BaseSettings):
     def is_development(self) -> bool:
         return self.app_env.lower() == "development"
 
+    def __getattribute__(self, name: str) -> Any:
+        if name == "gemini_api_key":
+            env_val = (
+                os.getenv("GEMINI_API_KEY", "").strip()
+                or os.getenv("GOOGLE_API_KEY", "").strip()
+            )
+            if env_val:
+                return env_val
+            try:
+                import streamlit as _st
+                if hasattr(_st, "secrets"):
+                    if "GEMINI_API_KEY" in _st.secrets and str(_st.secrets["GEMINI_API_KEY"]).strip():
+                        return str(_st.secrets["GEMINI_API_KEY"]).strip()
+                    if "GOOGLE_API_KEY" in _st.secrets and str(_st.secrets["GOOGLE_API_KEY"]).strip():
+                        return str(_st.secrets["GOOGLE_API_KEY"]).strip()
+            except Exception:
+                pass
+        return super().__getattribute__(name)
+
     def validate_required(self) -> None:
         """Raise ValueError if mandatory secrets are missing."""
         if not self.gemini_api_key:

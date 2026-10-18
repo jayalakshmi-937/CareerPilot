@@ -64,6 +64,10 @@ class AgentRequest(BaseModel):
         examples=[7],
         description="Optional number of days available for preparation.",
     )
+    api_key: Optional[str] = Field(
+        default=None,
+        description="Optional Gemini API key passed from candidate session.",
+    )
 
 
 class DailyScheduleItem(BaseModel):
@@ -112,6 +116,10 @@ class EvaluateRequest(BaseModel):
     topic_scores: Optional[Dict[str, List[float]]] = None
     progress: Optional[Dict[str, Any]] = None
     session_id: Optional[str] = None
+    api_key: Optional[str] = Field(
+        default=None,
+        description="Optional Gemini API key passed from candidate session.",
+    )
 
 
 class AgentResponse(BaseModel):
@@ -160,6 +168,11 @@ async def run_agent(
     and persists student, goal, topics, question, and progress into SQLite.
     """
     student_name = request.student_name or "Student"
+    if request.api_key and request.api_key.strip():
+        import os
+        os.environ["GEMINI_API_KEY"] = request.api_key.strip()
+        os.environ["GOOGLE_API_KEY"] = request.api_key.strip()
+
     logger.info(
         f"Agent initialization request | goal='{request.goal[:60]}…' | "
         f"student='{student_name}'"
@@ -346,6 +359,11 @@ async def evaluate_answer(
       Student Answer -> Evaluate -> Detect Weakness -> Update Progress -> Decide Next Action -> Generate Next Question
     Persists question, answer, evaluation scores, and updated topic mastery flags into SQLite.
     """
+    if request.api_key and request.api_key.strip():
+        import os
+        os.environ["GEMINI_API_KEY"] = request.api_key.strip()
+        os.environ["GOOGLE_API_KEY"] = request.api_key.strip()
+
     logger.info(f"Evaluation requested | topic='{request.current_topic}' | answer_len={len(request.student_answer)}")
     start_time = time.perf_counter()
 
