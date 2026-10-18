@@ -7,7 +7,7 @@
 [![SQLite](https://img.shields.io/badge/SQLite-SQLAlchemy%20Persistence-003B57.svg?logo=sqlite)](https://www.sqlite.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-Interactive%20UI-FF4B4B.svg?logo=streamlit)](https://streamlit.io/)
 [![Docker](https://img.shields.io/badge/Docker-Compose%20Ready-2496ED.svg?logo=docker)](https://www.docker.com/)
-[![Tests](https://img.shields.io/badge/pytest-126%20Passed-brightgreen.svg)](https://docs.pytest.org/)
+[![CI](https://github.com/katurikeerthi123-sys/CareerPilot/actions/workflows/ci.yml/badge.svg)](https://github.com/katurikeerthi123-sys/CareerPilot/actions)
 
 > **CareerPilot** is a genuinely agentic AI system designed for final-year college students preparing for technical placement drives. Unlike traditional chatbots or superficial RAG wrappers that simply return static answers, CareerPilot maintains a continuous **adaptive feedback loop**:
 >
@@ -125,8 +125,8 @@
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/katurikeerthi123-sys/student-placement-rag-assistant.git
-cd student-placement-rag-assistant
+git clone https://github.com/katurikeerthi123-sys/CareerPilot.git
+cd CareerPilot
 ```
 
 ### 2. Create and activate a virtual environment
