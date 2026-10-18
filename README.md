@@ -295,6 +295,8 @@ CareerPilot/
 ├── docker-compose.yml           # Orchestration for backend & frontend
 ├── .dockerignore                # Clean build exclusions
 ├── DOCKER_GUIDE.md              # Container deployment guide
+├── CONTRIBUTING.md              # Developer contribution guidelines
+├── LICENSE                      # MIT Open Source License
 ├── .env.example                 # Secrets template
 ├── .gitignore                   # Safe exclusions (.env, *.db, chroma_db/)
 ├── pytest.ini                   # Pytest test markers & paths
@@ -303,5 +305,10 @@ CareerPilot/
 
 ---
 
+## 🤝 Contributing
+Contributions, issue reports, and feature requests are welcome! See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for local development, testing guidelines, and submission steps.
+
+---
+
 ## 📄 License
-This project is developed as an academic final-year project under the MIT License.
+This project is licensed under the [MIT License](./LICENSE).
