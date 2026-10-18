@@ -33,7 +33,6 @@ COPY frontend/ ./frontend/
 COPY interview/ ./interview/
 COPY placement/ ./placement/
 COPY rag/ ./rag/
-COPY run.py ./run.py
 COPY pytest.ini ./pytest.ini
 COPY README.md ./README.md
 
