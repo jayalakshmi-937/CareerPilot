@@ -445,25 +445,28 @@ with st.sidebar:
             icon="⚠️",
         )
 
-    # API Key Configuration
-    active_key = (
-        st.session_state.get("gemini_api_key")
-        or os.getenv("GEMINI_API_KEY", "")
-        or os.getenv("GOOGLE_API_KEY", "")
+    # API Key Configuration: hidden from visitors if pre-configured on server / secrets
+    server_has_key = bool(
+        os.getenv("GEMINI_API_KEY")
+        or os.getenv("GOOGLE_API_KEY")
+        or (hasattr(st, "secrets") and ("GEMINI_API_KEY" in st.secrets or "GOOGLE_API_KEY" in st.secrets))
     )
-    with st.expander("🔑 Gemini API Key", expanded=not bool(active_key)):
-        user_key = st.text_input(
-            "API Key",
-            value=active_key,
-            type="password",
-            placeholder="AQ... or AIzaSy...",
-            help="Set via Streamlit Secrets or paste your key here directly.",
-        )
-        if user_key and user_key.strip():
-            cleaned_key = user_key.strip()
-            os.environ["GEMINI_API_KEY"] = cleaned_key
-            os.environ["GOOGLE_API_KEY"] = cleaned_key
-            st.session_state["gemini_api_key"] = cleaned_key
+
+    if not server_has_key:
+        active_key = st.session_state.get("gemini_api_key", "")
+        with st.expander("🔑 Gemini API Key (Admin Setup)", expanded=not bool(active_key)):
+            user_key = st.text_input(
+                "API Key",
+                value=active_key,
+                type="password",
+                placeholder="AQ... or AIzaSy...",
+                help="Set GEMINI_API_KEY in Streamlit Cloud Secrets so all visitors can use the app without entering any key.",
+            )
+            if user_key and user_key.strip():
+                cleaned_key = user_key.strip()
+                os.environ["GEMINI_API_KEY"] = cleaned_key
+                os.environ["GOOGLE_API_KEY"] = cleaned_key
+                st.session_state["gemini_api_key"] = cleaned_key
 
     # ── Preparation Setup Section ─────────────────────────────────────────────
     st.markdown("### 🎯 Preparation Setup")
