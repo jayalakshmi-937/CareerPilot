@@ -505,6 +505,8 @@ with st.sidebar:
     else:
         effective_tech = selected_tech
 
+    target_tech = effective_tech
+
     # 3. Available Preparation Days
     prep_days = st.slider(
         "Available Preparation Days",
@@ -677,6 +679,7 @@ else:
     )
     student_name = agent_data.get("student_name") or "Student"
     technology = student_profile.get("technology", "Technology")
+    target_tech = technology
     role = student_profile.get("role", "Software Engineer")
     days_available = student_profile.get("days_available", 7)
     difficulty_level = student_profile.get("difficulty_level", "Intermediate")
