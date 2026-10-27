@@ -636,6 +636,13 @@ def render_auth_page():
                             if ok and resp_data:
                                 st.session_state["authenticated_user"] = resp_data.get("user")
                                 st.session_state["auth_token"] = resp_data.get("token")
+                                # Clear previous in-memory state so user gets a clean session
+                                st.session_state["agent_data"] = None
+                                st.session_state["completed_days"] = set()
+                                st.session_state["last_evaluation"] = None
+                                st.session_state["student_answer_text"] = ""
+                                st.session_state["active_interview_session"] = None
+                                st.session_state["interview_final_report"] = None
                                 st.toast(f"Welcome back, {resp_data['user'].get('full_name')}!", icon="👋")
                                 time.sleep(0.5)
                                 st.rerun()
@@ -656,6 +663,12 @@ def render_auth_page():
                 if ok and resp_data:
                     st.session_state["authenticated_user"] = resp_data.get("user")
                     st.session_state["auth_token"] = resp_data.get("token")
+                    st.session_state["agent_data"] = None
+                    st.session_state["completed_days"] = set()
+                    st.session_state["last_evaluation"] = None
+                    st.session_state["student_answer_text"] = ""
+                    st.session_state["active_interview_session"] = None
+                    st.session_state["interview_final_report"] = None
                     st.toast("Logged in as Demo Candidate!", icon="⚡")
                     time.sleep(0.5)
                     st.rerun()
@@ -705,6 +718,13 @@ def render_auth_page():
                             if ok and resp_data:
                                 st.session_state["authenticated_user"] = resp_data.get("user")
                                 st.session_state["auth_token"] = resp_data.get("token")
+                                # Clear previous in-memory state so user gets a clean session
+                                st.session_state["agent_data"] = None
+                                st.session_state["completed_days"] = set()
+                                st.session_state["last_evaluation"] = None
+                                st.session_state["student_answer_text"] = ""
+                                st.session_state["active_interview_session"] = None
+                                st.session_state["interview_final_report"] = None
                                 st.success("🎉 Account created successfully! Launching dashboard...")
                                 time.sleep(0.6)
                                 st.rerun()
