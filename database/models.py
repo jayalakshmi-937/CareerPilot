@@ -33,6 +33,33 @@ from sqlalchemy.orm import relationship
 from database.connection import Base
 
 
+class User(Base):
+    """User account with authentication credentials and profile information."""
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(80), unique=True, index=True, nullable=False)
+    email = Column(String(150), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    full_name = Column(String(120), nullable=True)
+    target_technology = Column(String(80), nullable=True, default="Java")
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    last_login = Column(DateTime, nullable=True)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "id": self.id,
+            "username": self.username,
+            "email": self.email,
+            "full_name": self.full_name or self.username,
+            "target_technology": self.target_technology or "Java",
+            "is_active": self.is_active,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "last_login": self.last_login.isoformat() if self.last_login else None,
+        }
+
+
 class Student(Base):
     """Registered or active student preparing for placements."""
     __tablename__ = "students"

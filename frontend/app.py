@@ -119,6 +119,12 @@ if "last_evaluation" not in st.session_state:
 if "student_answer_text" not in st.session_state:
     st.session_state["student_answer_text"] = ""
 
+if "authenticated_user" not in st.session_state:
+    st.session_state["authenticated_user"] = None
+
+if "auth_token" not in st.session_state:
+    st.session_state["auth_token"] = None
+
 
 # ── API Helpers ───────────────────────────────────────────────────────────────
 
@@ -425,6 +431,189 @@ def call_interview_report_api(session_id: str) -> tuple[bool, Optional[dict[str,
 
 
 
+
+# ── Authentication API Helpers ────────────────────────────────────────────────
+
+def call_register_api(
+    username: str,
+    email: str,
+    password: str,
+    full_name: Optional[str] = None,
+    target_technology: str = "Java",
+) -> tuple[bool, Optional[dict[str, Any]], Optional[str]]:
+    """Register a new candidate account with the backend."""
+    payload = {
+        "username": username.strip(),
+        "email": email.strip(),
+        "password": password,
+        "full_name": full_name.strip() if full_name else None,
+        "target_technology": target_technology,
+    }
+    try:
+        resp = requests.post(f"{BACKEND_URL}/api/auth/register", json=payload, timeout=15)
+        data = resp.json() if resp.content else {}
+        if resp.status_code == 201 and data.get("success"):
+            return True, data, None
+        detail = data.get("detail") or data.get("message") or f"HTTP {resp.status_code}"
+        return False, None, str(detail)
+    except requests.exceptions.ConnectionError:
+        return False, None, f"Cannot connect to CareerPilot backend at `{BACKEND_URL}`."
+    except Exception as exc:
+        return False, None, f"Registration failed: {str(exc)}"
+
+
+def call_login_api(
+    username_or_email: str,
+    password: str,
+) -> tuple[bool, Optional[dict[str, Any]], Optional[str]]:
+    """Authenticate existing candidate credentials with the backend."""
+    payload = {
+        "username_or_email": username_or_email.strip(),
+        "password": password,
+    }
+    try:
+        resp = requests.post(f"{BACKEND_URL}/api/auth/login", json=payload, timeout=15)
+        data = resp.json() if resp.content else {}
+        if resp.status_code == 200 and data.get("success"):
+            return True, data, None
+        detail = data.get("detail") or data.get("message") or f"HTTP {resp.status_code}"
+        return False, None, str(detail)
+    except requests.exceptions.ConnectionError:
+        return False, None, f"Cannot connect to CareerPilot backend at `{BACKEND_URL}`."
+    except Exception as exc:
+        return False, None, f"Login failed: {str(exc)}"
+
+
+def render_auth_page():
+    """Render Login & Registration portal for candidate access."""
+    st.markdown(
+        """
+        <div style="text-align: center; padding: 1.5rem 0 1.2rem 0;">
+            <h1 style="font-size: 2.8rem; margin-bottom: 0.2rem;">🚀 CareerPilot</h1>
+            <p style="font-size: 1.15rem; color: #555; max-width: 680px; margin: 0 auto; line-height: 1.6;">
+                <strong>Agentic AI for Personalized Placement Preparation</strong><br>
+                Please sign in or register to access your personalized preparation roadmaps, adaptive practice,
+                ChromaDB study materials, and AI mock interviews.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    f1, f2, f3, f4 = st.columns(4)
+    with f1:
+        st.info("🎯 **Custom Roadmaps**\n\nDay-by-day plan tailored to your timeline.")
+    with f2:
+        st.info("📚 **RAG Knowledge Base**\n\nCurated placement technical sheets.")
+    with f3:
+        st.info("🤖 **Adaptive Tutor**\n\nEvaluates answers and remediates weak topics.")
+    with f4:
+        st.info("🎙️ **Mock Interviews**\n\nRealistic technical hiring simulations.")
+
+    st.markdown("---")
+
+    col_l, col_center, col_r = st.columns([1, 2.2, 1])
+    with col_center:
+        auth_tab_login, auth_tab_register = st.tabs(["🔐 Sign In", "📝 Create Account"])
+
+        with auth_tab_login:
+            st.markdown("### 🔐 Sign In to Your Account")
+            st.caption("Enter your registered credentials to access your dashboard.")
+            with st.form("login_form", clear_on_submit=False):
+                login_id = st.text_input("Username or Email", placeholder="e.g. arjun or arjun@example.com")
+                login_pwd = st.text_input("Password", type="password", placeholder="Enter your password")
+                login_submit = st.form_submit_button("🚀 Sign In to CareerPilot", type="primary", use_container_width=True)
+
+                if login_submit:
+                    if not login_id.strip() or not login_pwd:
+                        st.error("Please enter both username/email and password.")
+                    else:
+                        with st.spinner("Authenticating credentials with backend..."):
+                            ok, resp_data, err_msg = call_login_api(login_id, login_pwd)
+                            if ok and resp_data:
+                                st.session_state["authenticated_user"] = resp_data.get("user")
+                                st.session_state["auth_token"] = resp_data.get("token")
+                                st.toast(f"Welcome back, {resp_data['user'].get('full_name')}!", icon="👋")
+                                time.sleep(0.5)
+                                st.rerun()
+                            else:
+                                st.error(f"❌ {err_msg}")
+
+            st.markdown("<div style='text-align: center; margin: 0.8rem 0 0.4rem 0; color: #888;'>── OR ──</div>", unsafe_allow_html=True)
+            if st.button("⚡ One-Click Demo Access (Quick Test)", use_container_width=True):
+                ok, resp_data, _ = call_login_api("demo_candidate", "CareerPilot123!")
+                if not ok:
+                    ok, resp_data, _ = call_register_api(
+                        username="demo_candidate",
+                        email="demo@careerpilot.ai",
+                        password="CareerPilot123!",
+                        full_name="Demo Candidate",
+                        target_technology="Java",
+                    )
+                if ok and resp_data:
+                    st.session_state["authenticated_user"] = resp_data.get("user")
+                    st.session_state["auth_token"] = resp_data.get("token")
+                    st.toast("Logged in as Demo Candidate!", icon="⚡")
+                    time.sleep(0.5)
+                    st.rerun()
+
+        with auth_tab_register:
+            st.markdown("### 📝 Register New Candidate Account")
+            st.caption("Your details and placement progress will be safely stored in the SQLite backend.")
+            with st.form("register_form", clear_on_submit=False):
+                reg_name = st.text_input("Full Name", placeholder="e.g. Arjun Sharma")
+                reg_user = st.text_input("Username", placeholder="e.g. arjun_sharma (alphanumeric)")
+                reg_email = st.text_input("Email Address", placeholder="e.g. arjun@university.edu")
+                reg_tech = st.selectbox(
+                    "Primary Placement Track / Technology",
+                    [
+                        "Java",
+                        "Python",
+                        "C++",
+                        "JavaScript / TypeScript",
+                        "React / Node.js Full Stack",
+                        "Data Structures & Algorithms (DSA)",
+                        "Data Science & Machine Learning",
+                        "SQL & Database Engineering",
+                        "Go / Golang",
+                        "Other / Custom",
+                    ],
+                )
+                reg_p1 = st.text_input("Create Password", type="password", placeholder="Minimum 6 characters")
+                reg_p2 = st.text_input("Confirm Password", type="password", placeholder="Re-enter password")
+                reg_submit = st.form_submit_button("✨ Register & Start Preparation", type="primary", use_container_width=True)
+
+                if reg_submit:
+                    if not reg_user.strip() or not reg_email.strip() or not reg_p1:
+                        st.error("Please fill in all required fields (Username, Email, Password).")
+                    elif len(reg_p1) < 6:
+                        st.error("Password must be at least 6 characters long.")
+                    elif reg_p1 != reg_p2:
+                        st.error("Passwords do not match. Please verify and try again.")
+                    else:
+                        with st.spinner("Registering your candidate account in backend..."):
+                            ok, resp_data, err_msg = call_register_api(
+                                username=reg_user,
+                                email=reg_email,
+                                password=reg_p1,
+                                full_name=reg_name or reg_user,
+                                target_technology=reg_tech,
+                            )
+                            if ok and resp_data:
+                                st.session_state["authenticated_user"] = resp_data.get("user")
+                                st.session_state["auth_token"] = resp_data.get("token")
+                                st.success("🎉 Account created successfully! Launching dashboard...")
+                                time.sleep(0.6)
+                                st.rerun()
+                            else:
+                                st.error(f"❌ {err_msg}")
+
+
+# ── Authentication Gate ───────────────────────────────────────────────────────
+if not st.session_state.get("authenticated_user"):
+    render_auth_page()
+    st.stop()
+
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.image(
@@ -433,6 +622,20 @@ with st.sidebar:
     )
     st.title("CareerPilot")
     st.caption("Agentic AI for Placement Prep • Phase 4 (RAG)")
+    st.markdown("---")
+
+    # Current Authenticated Candidate
+    curr_user = st.session_state.get("authenticated_user") or {}
+    st.markdown(f"**👤 {curr_user.get('full_name') or curr_user.get('username')}**")
+    st.caption(f"@{curr_user.get('username')} • {curr_user.get('email')}")
+    st.markdown(f"**Track:** `{curr_user.get('target_technology', 'Java')}`")
+    if st.button("🚪 Log Out", use_container_width=True, key="btn_logout_sidebar"):
+        st.session_state["authenticated_user"] = None
+        st.session_state["auth_token"] = None
+        st.session_state["agent_data"] = None
+        st.session_state["active_interview_session"] = None
+        st.session_state["interview_final_report"] = None
+        st.rerun()
     st.markdown("---")
 
     # Backend Status
@@ -446,10 +649,17 @@ with st.sidebar:
         )
 
     # API Key Configuration: hidden from visitors if pre-configured on server / secrets
+    def _has_secret(k: str) -> bool:
+        try:
+            return hasattr(st, "secrets") and k in st.secrets
+        except Exception:
+            return False
+
     server_has_key = bool(
         os.getenv("GEMINI_API_KEY")
         or os.getenv("GOOGLE_API_KEY")
-        or (hasattr(st, "secrets") and ("GEMINI_API_KEY" in st.secrets or "GOOGLE_API_KEY" in st.secrets))
+        or _has_secret("GEMINI_API_KEY")
+        or _has_secret("GOOGLE_API_KEY")
     )
 
     if not server_has_key:
@@ -472,9 +682,10 @@ with st.sidebar:
     st.markdown("### 🎯 Preparation Setup")
 
     # 1. Student Name
+    default_student_name = curr_user.get("full_name") or curr_user.get("username") or "Arjun Sharma"
     student_name_input = st.text_input(
         "Your Name",
-        value="Arjun Sharma",
+        value=default_student_name,
         placeholder="e.g. Alex, Priya, Arjun",
         help="Used to personalise your study plan and interview feedback.",
     )
@@ -492,10 +703,12 @@ with st.sidebar:
         "Go / Golang",
         "Other / Custom",
     ]
+    user_tech = curr_user.get("target_technology", "Java")
+    default_tech_idx = tech_options.index(user_tech) if user_tech in tech_options else 0
     selected_tech = st.selectbox(
         "Target Technology",
         options=tech_options,
-        index=0,
+        index=default_tech_idx,
         help="The primary language or domain for your placement interview.",
     )
 

@@ -78,11 +78,13 @@ app.add_middleware(
 )
 
 # ── Routers ───────────────────────────────────────────────────────────────────
+from backend.routers.auth import router as auth_router  # noqa: E402
 from backend.routers.agent import router as agent_router  # noqa: E402
 from backend.routers.documents import router as documents_router  # noqa: E402
 from backend.routers.students import router as students_router  # noqa: E402
 from backend.routers.placement import router as placement_router  # noqa: E402
 from backend.routers.interview import interview_router  # noqa: E402
+app.include_router(auth_router)
 app.include_router(agent_router)
 app.include_router(documents_router)
 app.include_router(students_router)
