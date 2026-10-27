@@ -441,7 +441,7 @@ def call_register_api(
     full_name: Optional[str] = None,
     target_technology: str = "Java",
 ) -> tuple[bool, Optional[dict[str, Any]], Optional[str]]:
-    """Register a new candidate account with the backend."""
+    """Register a new candidate account with the backend (with in-process fallback for cloud)."""
     payload = {
         "username": username.strip(),
         "email": email.strip(),
@@ -449,15 +449,63 @@ def call_register_api(
         "full_name": full_name.strip() if full_name else None,
         "target_technology": target_technology,
     }
+    
+    # 1. Attempt HTTP call to FastAPI backend
     try:
         resp = requests.post(f"{BACKEND_URL}/api/auth/register", json=payload, timeout=15)
-        data = resp.json() if resp.content else {}
-        if resp.status_code == 201 and data.get("success"):
-            return True, data, None
-        detail = data.get("detail") or data.get("message") or f"HTTP {resp.status_code}"
-        return False, None, str(detail)
-    except requests.exceptions.ConnectionError:
-        return False, None, f"Cannot connect to CareerPilot backend at `{BACKEND_URL}`."
+        if resp.status_code == 201:
+            data = resp.json() if resp.content else {}
+            if data.get("success"):
+                return True, data, None
+        elif resp.status_code != 404:
+            # Real validation error from backend (e.g., duplicate username, bad email)
+            data = resp.json() if resp.content else {}
+            detail = data.get("detail") or data.get("message") or f"HTTP {resp.status_code}"
+            return False, None, str(detail)
+    except Exception:
+        pass
+
+    # 2. Fallback to direct in-process SQLite persistence (guarantees success on Streamlit Cloud)
+    try:
+        import re
+        from database.connection import SessionLocal
+        from database.repository import create_user, get_user_by_username, get_user_by_email
+        from backend.auth import hash_password, create_session_token
+
+        clean_u = username.strip().lower()
+        clean_e = email.strip().lower()
+        clean_name = full_name.strip() if full_name else clean_u
+
+        if not re.match(r"^[a-zA-Z0-9_\-\.]+$", clean_u):
+            return False, None, "Username may only contain letters, numbers, underscores, hyphens, and periods."
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", clean_e):
+            return False, None, "Please provide a valid email address."
+
+        db = SessionLocal()
+        try:
+            if get_user_by_username(db, clean_u):
+                return False, None, f"Username '{clean_u}' is already taken. Please choose another."
+            if get_user_by_email(db, clean_e):
+                return False, None, f"An account with email '{clean_e}' already exists. Please log in."
+
+            pwd_hash = hash_password(password)
+            user = create_user(
+                db=db,
+                username=clean_u,
+                email=clean_e,
+                hashed_password=pwd_hash,
+                full_name=clean_name,
+                target_technology=target_technology or "Java",
+            )
+            token = create_session_token()
+            return True, {
+                "success": True,
+                "message": "Registration successful! Welcome to CareerPilot.",
+                "token": token,
+                "user": user.to_dict(),
+            }, None
+        finally:
+            db.close()
     except Exception as exc:
         return False, None, f"Registration failed: {str(exc)}"
 
@@ -466,20 +514,51 @@ def call_login_api(
     username_or_email: str,
     password: str,
 ) -> tuple[bool, Optional[dict[str, Any]], Optional[str]]:
-    """Authenticate existing candidate credentials with the backend."""
+    """Authenticate existing candidate credentials with backend (with in-process fallback for cloud)."""
     payload = {
         "username_or_email": username_or_email.strip(),
         "password": password,
     }
+    
+    # 1. Attempt HTTP call to FastAPI backend
     try:
         resp = requests.post(f"{BACKEND_URL}/api/auth/login", json=payload, timeout=15)
-        data = resp.json() if resp.content else {}
-        if resp.status_code == 200 and data.get("success"):
-            return True, data, None
-        detail = data.get("detail") or data.get("message") or f"HTTP {resp.status_code}"
-        return False, None, str(detail)
-    except requests.exceptions.ConnectionError:
-        return False, None, f"Cannot connect to CareerPilot backend at `{BACKEND_URL}`."
+        if resp.status_code == 200:
+            data = resp.json() if resp.content else {}
+            if data.get("success"):
+                return True, data, None
+        elif resp.status_code not in (404, 502, 503):
+            data = resp.json() if resp.content else {}
+            detail = data.get("detail") or data.get("message") or f"HTTP {resp.status_code}"
+            return False, None, str(detail)
+    except Exception:
+        pass
+
+    # 2. Fallback to direct in-process SQLite verification
+    try:
+        from database.connection import SessionLocal
+        from database.repository import get_user_by_identifier, update_user_last_login
+        from backend.auth import verify_password, create_session_token
+
+        clean_id = username_or_email.strip().lower()
+        db = SessionLocal()
+        try:
+            user = get_user_by_identifier(db, clean_id)
+            if not user or not verify_password(password, user.hashed_password):
+                return False, None, "Invalid username/email or password."
+            if not user.is_active:
+                return False, None, "This account has been deactivated. Please contact support."
+
+            update_user_last_login(db, user.id)
+            token = create_session_token()
+            return True, {
+                "success": True,
+                "message": f"Welcome back, {user.full_name or user.username}!",
+                "token": token,
+                "user": user.to_dict(),
+            }, None
+        finally:
+            db.close()
     except Exception as exc:
         return False, None, f"Login failed: {str(exc)}"
 
