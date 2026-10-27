@@ -434,6 +434,33 @@ def call_interview_report_api(session_id: str) -> tuple[bool, Optional[dict[str,
 
 # ── Authentication API Helpers ────────────────────────────────────────────────
 
+def _get_auth_modules():
+    """Ensure database.models, database.repository, and backend.auth are fresh in sys.modules."""
+    import importlib
+    import sys
+
+    import database.connection as db_conn
+    import database.models as db_models
+    import database.repository as db_repo
+    import backend.auth as b_auth
+
+    # Hot-reload stale modules if they were cached before auth commits
+    if not hasattr(db_models, "User"):
+        db_models = importlib.reload(db_models)
+    if not hasattr(db_repo, "create_user"):
+        db_repo = importlib.reload(db_repo)
+    if not hasattr(b_auth, "hash_password"):
+        b_auth = importlib.reload(b_auth)
+
+    # Ensure SQLite tables exist
+    try:
+        db_models.Base.metadata.create_all(bind=db_conn.engine)
+    except Exception:
+        pass
+
+    return db_conn, db_models, db_repo, b_auth
+
+
 def call_register_api(
     username: str,
     email: str,
@@ -468,28 +495,26 @@ def call_register_api(
     # 2. Fallback to direct in-process SQLite persistence (guarantees success on Streamlit Cloud)
     try:
         import re
-        from database.connection import SessionLocal
-        from database.repository import create_user, get_user_by_username, get_user_by_email
-        from backend.auth import hash_password, create_session_token
+        db_conn, db_models, db_repo, b_auth = _get_auth_modules()
 
         clean_u = username.strip().lower()
         clean_e = email.strip().lower()
         clean_name = full_name.strip() if full_name else clean_u
 
-        if not re.match(r"^[a-zA-Z0-9_\-\.]+$", clean_u):
+        if not re.match(r"^[a-zA-Z0-9_.-]+$", clean_u):
             return False, None, "Username may only contain letters, numbers, underscores, hyphens, and periods."
         if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", clean_e):
             return False, None, "Please provide a valid email address."
 
-        db = SessionLocal()
+        db = db_conn.SessionLocal()
         try:
-            if get_user_by_username(db, clean_u):
+            if hasattr(db_repo, "get_user_by_username") and db_repo.get_user_by_username(db, clean_u):
                 return False, None, f"Username '{clean_u}' is already taken. Please choose another."
-            if get_user_by_email(db, clean_e):
+            if hasattr(db_repo, "get_user_by_email") and db_repo.get_user_by_email(db, clean_e):
                 return False, None, f"An account with email '{clean_e}' already exists. Please log in."
 
-            pwd_hash = hash_password(password)
-            user = create_user(
+            pwd_hash = b_auth.hash_password(password)
+            user = db_repo.create_user(
                 db=db,
                 username=clean_u,
                 email=clean_e,
@@ -497,7 +522,7 @@ def call_register_api(
                 full_name=clean_name,
                 target_technology=target_technology or "Java",
             )
-            token = create_session_token()
+            token = b_auth.create_session_token()
             return True, {
                 "success": True,
                 "message": "Registration successful! Welcome to CareerPilot.",
@@ -536,21 +561,20 @@ def call_login_api(
 
     # 2. Fallback to direct in-process SQLite verification
     try:
-        from database.connection import SessionLocal
-        from database.repository import get_user_by_identifier, update_user_last_login
-        from backend.auth import verify_password, create_session_token
+        db_conn, db_models, db_repo, b_auth = _get_auth_modules()
 
         clean_id = username_or_email.strip().lower()
-        db = SessionLocal()
+        db = db_conn.SessionLocal()
         try:
-            user = get_user_by_identifier(db, clean_id)
-            if not user or not verify_password(password, user.hashed_password):
+            user = db_repo.get_user_by_identifier(db, clean_id)
+            if not user or not b_auth.verify_password(password, user.hashed_password):
                 return False, None, "Invalid username/email or password."
             if not user.is_active:
                 return False, None, "This account has been deactivated. Please contact support."
 
-            update_user_last_login(db, user.id)
-            token = create_session_token()
+            if hasattr(db_repo, "update_user_last_login"):
+                db_repo.update_user_last_login(db, user.id)
+            token = b_auth.create_session_token()
             return True, {
                 "success": True,
                 "message": f"Welcome back, {user.full_name or user.username}!",
