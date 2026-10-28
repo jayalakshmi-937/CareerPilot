@@ -290,6 +290,97 @@ def get_student_detail_api(name: str) -> Optional[dict[str, Any]]:
     return None
 
 
+def load_student_dashboard_state(student_name: str) -> Optional[dict[str, Any]]:
+    """Automatically restore existing study plan, topics, and memory from SQLite backend."""
+    clean_name = student_name.strip()
+    if not clean_name:
+        return None
+
+    # 1. Try FastAPI REST endpoint
+    try:
+        resp = requests.get(f"{BACKEND_URL}/api/students/{clean_name}", timeout=3)
+        if resp.status_code == 200:
+            data = resp.json()
+            sess = data.get("latest_session")
+            goal = data.get("active_goal") or {}
+            prog = data.get("progress") or {}
+            if sess and (sess.get("plan_structured") or sess.get("plan_markdown")):
+                return {
+                    "student_name": clean_name,
+                    "student_profile": {
+                        "name": clean_name,
+                        "technology": goal.get("target_technology") or "Java",
+                        "days_available": goal.get("days_available") or 7,
+                        "role": "Candidate",
+                        "difficulty_level": goal.get("target_difficulty") or "Intermediate",
+                    },
+                    "plan_structured": sess.get("plan_structured") or {},
+                    "plan_markdown": sess.get("plan_markdown") or "",
+                    "current_topic": sess.get("current_topic") or "General Preparation",
+                    "recommended_next_task": sess.get("recommended_next_task") or "Review core concepts and practice questions.",
+                    "next_action": sess.get("next_action") or "continue",
+                    "weak_topics": prog.get("weak_topics") or [],
+                    "mastered_topics": prog.get("mastered_topics") or [],
+                    "completed_topics": prog.get("completed_topics") or [],
+                    "progress": prog,
+                }
+    except Exception:
+        pass
+
+    # 2. Try direct SQLite fallback (guarantees restore on Streamlit Cloud)
+    try:
+        from database.connection import SessionLocal
+        from database.models import Student, Goal, StudySession, Progress
+        from sqlalchemy import func
+
+        db = SessionLocal()
+        try:
+            st_rec = db.query(Student).filter(func.lower(Student.name) == clean_name.lower()).first()
+            if not st_rec:
+                return None
+
+            sess = (
+                db.query(StudySession)
+                .filter(StudySession.student_id == st_rec.id)
+                .order_by(StudySession.created_at.desc())
+                .first()
+            )
+            if not sess or (not sess.plan_structured and not sess.plan_markdown):
+                return None
+
+            goal = (
+                db.query(Goal)
+                .filter(Goal.student_id == st_rec.id, Goal.is_active == True)
+                .order_by(Goal.created_at.desc())
+                .first()
+            )
+            prog = db.query(Progress).filter(Progress.student_id == st_rec.id).first()
+
+            return {
+                "student_name": st_rec.name,
+                "student_profile": {
+                    "name": st_rec.name,
+                    "technology": (goal.target_technology if goal else st_rec.target_technology) or "Java",
+                    "days_available": (goal.days_available if goal else st_rec.available_days) or 7,
+                    "role": st_rec.current_role or "Candidate",
+                    "difficulty_level": goal.target_difficulty if goal else "Intermediate",
+                },
+                "plan_structured": sess.plan_structured or {},
+                "plan_markdown": sess.plan_markdown or "",
+                "current_topic": sess.current_topic or "General Preparation",
+                "recommended_next_task": sess.recommended_next_task or "Review core concepts and practice questions.",
+                "next_action": sess.next_action or "continue",
+                "weak_topics": prog.weak_topics if prog else [],
+                "mastered_topics": prog.mastered_topics if prog else [],
+                "completed_topics": prog.completed_topics if prog else [],
+                "progress": prog.to_dict() if prog else {},
+            }
+        finally:
+            db.close()
+    except Exception:
+        return None
+
+
 def call_placement_question_api(
     topic: str,
     technology: str = "Java",
@@ -737,6 +828,15 @@ if not st.session_state.get("authenticated_user"):
     render_auth_page()
     st.stop()
 
+# ── Auto-Restore Candidate's Saved Preparation Track ──────────────────────────
+if not st.session_state.get("agent_data"):
+    _curr_u = st.session_state.get("authenticated_user") or {}
+    _cand_name = _curr_u.get("full_name") or _curr_u.get("username")
+    if _cand_name:
+        _saved_track = load_student_dashboard_state(_cand_name)
+        if _saved_track:
+            st.session_state["agent_data"] = _saved_track
+
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.image(
@@ -951,6 +1051,24 @@ agent_data = st.session_state.get("agent_data")
 if not agent_data:
     # ── Welcome / Hero State ──────────────────────────────────────────────────
     st.title("🚀 CareerPilot: Agentic Placement Preparation")
+    _curr_cand = st.session_state.get("authenticated_user") or {}
+    _c_name = _curr_cand.get("full_name") or _curr_cand.get("username")
+    _past_items = get_student_history_api(_c_name) if _c_name else []
+    if _past_items:
+        st.success(
+            f"Welcome back, **{_c_name}**! You have **{len(_past_items)} recorded evaluation(s)** in your persistent SQLite memory.",
+            icon="📊",
+        )
+        with st.expander(f"📜 View Your Past Evaluation Records ({len(_past_items)} Attempted)", expanded=False):
+            for _idx, _item in enumerate(_past_items, 1):
+                _isp = _item.get("is_passed", False)
+                _sc = _item.get("score", 0.0)
+                _b = "✅ Pass" if _isp else "⚠️ Review Needed"
+                st.markdown(f"**{_idx}. [{_b}] {_item.get('topic', 'General')}** — Score: `{_sc}/10`")
+                st.markdown(f"> *Q: {_item.get('question_text')}*")
+                if _item.get("feedback"):
+                    st.caption(f"Feedback: {_item.get('feedback')}")
+        st.markdown("---")
     st.markdown(
         """
         Welcome! CareerPilot is an **agentic AI placement tutor with Retrieval-Augmented Generation (RAG)**.
