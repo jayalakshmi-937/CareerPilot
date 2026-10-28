@@ -30,25 +30,74 @@ if str(PROJECT_ROOT) not in sys.path:
 # 1. LLM Factory
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class TestLLMFactory:
     def test_llm_imports(self):
         from agent.llm import get_llm
-        assert get_llm is not None
+        assert callable(get_llm)
 
-    def test_llm_is_cached(self):
-        """Two calls must return the exact same object (lru_cache)."""
-        from agent.llm import get_llm
-        llm1 = get_llm()
-        llm2 = get_llm()
-        assert llm1 is llm2
+    def test_llm_is_cached(self, monkeypatch):
+        """Two calls with the same configuration return the same cached object."""
+        import agent.llm as llm_module
 
-    def test_llm_has_correct_model(self):
+        class FakeSettings:
+            llm_model = "test-model"
+            llm_temperature = 0.7
+            llm_max_tokens = 1024
+
+     
+class TestLLMFactory:
+    def test_llm_imports(self):
         from agent.llm import get_llm
-        from backend.config import get_settings
-        llm = get_llm()
-        settings = get_settings()
-        # langchain-google-genai stores model in .model attribute
-        assert settings.llm_model in (llm.model or "")
+        assert callable(get_llm)
+
+    def test_llm_is_cached(self, monkeypatch):
+        import agent.llm as llm_module
+
+        class FakeSettings:
+            llm_model = "test-model"
+            llm_temperature = 0.7
+            llm_max_tokens = 1024
+
+        class FakeLLM:
+            def __init__(self, **kwargs):
+                self.model = kwargs["model"]
+
+        monkeypatch.setattr(llm_module, "get_settings", lambda: FakeSettings())
+        monkeypatch.setattr(llm_module, "get_effective_gemini_api_key", lambda: "")
+        monkeypatch.setattr(llm_module, "ChatGoogleGenerativeAI", FakeLLM)
+        llm_module._create_llm_instance.cache_clear()
+
+        try:
+            llm1 = llm_module.get_llm()
+            llm2 = llm_module.get_llm()
+            assert llm1 is llm2
+        finally:
+            llm_module._create_llm_instance.cache_clear()
+
+    def test_llm_has_correct_model(self, monkeypatch):
+        import agent.llm as llm_module
+
+        class FakeSettings:
+            llm_model = "test-model"
+            llm_temperature = 0.7
+            llm_max_tokens = 1024
+
+        class FakeLLM:
+            def __init__(self, **kwargs):
+                self.model = kwargs["model"]
+
+        monkeypatch.setattr(llm_module, "get_settings", lambda: FakeSettings())
+        monkeypatch.setattr(llm_module, "get_effective_gemini_api_key", lambda: "")
+        monkeypatch.setattr(llm_module, "ChatGoogleGenerativeAI", FakeLLM)
+        llm_module._create_llm_instance.cache_clear()
+
+        try:
+            llm = llm_module.get_llm()
+            assert llm.model == "test-model"
+        finally:
+            llm_module._create_llm_instance.cache_clear()
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────
