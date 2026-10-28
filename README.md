@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🚀 CareerPilot: An Agentic AI for Personalized Placement Preparation
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com)
@@ -312,3 +313,7 @@ Contributions, issue reports, and feature requests are welcome! See [`CONTRIBUTI
 
 ## 📄 License
 This project is licensed under the [MIT License](./LICENSE).
+=======
+# CareerPilot
+An Agentic AI-Based Career Guidance and Job Preparation System that helps students plan their learning and prepare for placement opportunities.
+>>>>>>> c3cc21ad01a2aa3f5daa3a0d045215719d394f6a
