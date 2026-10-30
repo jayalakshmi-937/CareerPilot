@@ -21,8 +21,9 @@ from agent.prompts import PLANNER_PROMPT
 from agent.state import AgentState
 
 
+
 def _clean_json(raw: Any) -> str:
-    """Extract string and strip accidental markdown fences the model might add."""
+    """Extract JSON text and remove accidental Markdown fences."""
     if isinstance(raw, list):
         parts = []
         for item in raw:
@@ -41,7 +42,15 @@ def _clean_json(raw: Any) -> str:
     text = text.strip()
     text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
     text = re.sub(r"\s*```$", "", text)
+
+    # Extract the JSON object if the model adds explanatory text.
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end > start:
+        text = text[start:end + 1]
+
     return text.strip()
+
 
 
 def _plan_to_markdown(plan: dict[str, Any], profile: dict[str, Any]) -> str:

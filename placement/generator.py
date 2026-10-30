@@ -86,7 +86,7 @@ def generate_topic_question(
             logger.warning(f"RAG retrieval skipped for topic question: {exc}")
             study_context = "No specific study document notes found."
 
-    llm = get_llm()
+
 
     # 2. MCQ Question Generation
     if question_type == "mcq":
@@ -97,6 +97,7 @@ def generate_topic_question(
             study_material=study_context or "General core language knowledge.",
         )
         try:
+            llm = get_llm()
             res = llm.invoke(prompt_val)
             parsed = json.loads(_clean_json(res.content))
 
@@ -155,6 +156,7 @@ def generate_topic_question(
             study_material=study_context or "General algorithmic concepts.",
         )
         try:
+            llm = get_llm()
             res = llm.invoke(prompt_val)
             parsed = json.loads(_clean_json(res.content))
 
@@ -222,6 +224,7 @@ def generate_topic_question(
             study_material=study_context or "General placement concepts.",
         )
         try:
+            llm = get_llm()
             res = llm.invoke(prompt_val)
             parsed = json.loads(_clean_json(res.content))
             return TopicPracticeResponse(
@@ -321,7 +324,7 @@ def generate_readiness_report(
     calc_score = int(breadth_score + perf_score + vol_score)
     calc_score = max(20, min(95, calc_score))
 
-    llm = get_llm()
+
     prompt_val = READINESS_REPORT_PROMPT.format_messages(
         student_name=clean_name,
         target_role=target_role,

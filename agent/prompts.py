@@ -55,7 +55,14 @@ PLANNER_PROMPT = ChatPromptTemplate.from_messages([
 Given a student's profile, generate a detailed, personalised, day-by-day
 preparation plan.
 
-Format your response as a JSON object ONLY — no markdown fences.
+Format your response as a valid JSON object ONLY — no markdown fences.
+
+IMPORTANT JSON RULES:
+- Return strictly valid JSON that can be parsed by Python's json.loads().
+- Never include literal newline, tab, or other control characters inside JSON string values. Use escaped sequences such as \\n when needed.
+- Escape all double quotes inside string values as \\".
+- Do not include comments, trailing commas, or explanatory text outside the JSON object.
+- Keep each string value on a single line.
 
 JSON schema:
 {{
